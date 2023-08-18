@@ -1,0 +1,162 @@
+---
+title:  |
+  | Resistentie tegen rattenvergif  
+  | (2013 – 2019)
+author: "Kristof Baert, Emma Cartuyvels"
+date: "17-11-2020"
+output: html_document
+---
+```{r include = FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning = FALSE)
+```
+
+```{r logo}
+htmltools::img(src = knitr::image_uri("../INSTvoorNatuur.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0; right:0; 
+               padding:10px; width:30vw')
+```
+
+```{r setup}
+library(readxl)
+library(sf)
+library(rgdal)
+library(crosstalk)
+library(leaflet)
+library(DT)
+library(plotly)
+library(tidyverse)
+```
+
+Sinds het begin van ons onderzoek in 2003 zien we dat het aantal resistente ratten in Vlaanderen verdubbelde. Met gemiddeld meer dan 40% resistente ratten is het mogelijk dat de bestrijding met vergif niet langer het gewenste resultaat oplevert. We zien nog wel geografische verschillen maar ook daar waar we lang geen of weinig resistentie zagen, duikt het nu meer en meer op.
+
+In Vlaanderen vinden we drie verschillende genetische vormen (mutaties) van resistentie terug. Alle mutaties veroorzaken resistentie tegen eerste generatie rodenticiden (warfarine, coumatetralyl).
+
+- Mutatie 1 (M1) of Y139F (rood) komt het meest algemeen voor en veroorzaakt ook resistentie tegen bromadiolone en in beperkte mate tegen difenacoum.
+- Mutatie 2 (M2) of L120Q (blauw) oorspronkelijk beperkt tot het Demerbekken neemt ook toe in areaal maar komt in vergelijking met M1 nog steeds minder voor. Testen uit het verleden geven aan dat deze mutatie vooral resistentie tegen difenacoum bevordert, maar ook deels tegen bromadiolone.
+- Mutatie 3 (M3) of Y139C (geel) blijft zelden. Resistentie door M3 is vergelijkbaar met M1.
+- Wildtype of WW (grijs) dragen geen mutatie en kunnen bestreden worden met rattenvergif.
+
+We zien ook een aantal combinaties van de verschillende mutaties, die vermoedelijk bijdragen aan resistentie tegen zowel bromadiolone als difenacoum.
+
+Een rat kan enkel of dubbel drager zijn van een mutatie (vb M1W of M1M1). Alle dragers zijn resistent. Ratten die dubbel drager zijn van een mutatie zijn moeilijker te bestrijden en hun nakomelingen zijn allemaal resistent tegen rattenvergif.
+
+Via deze interactieve kaart bieden we bestrijders de kans aan, om in te spelen op de lokale situatie. De grenzen op kaart zijn de verschillende rivierbekkens in Vlaanderen. In 2017 en 2018 werden enkel de centrale bekkens waar minder resistentie aanwezig is getest.
+
+Deze resultaten kwamen tot stand in nauwe samenwerking met Afdeling Operationeel Waterbeheer van de Vlaamse Milieumaatschappij (VMM).
+
+
+```{r data}
+rat_res <- read_xlsx("../data/2013 - 2019 BMK.xlsx")
+rat_spat <- SpatialPointsDataFrame(coords = rat_res[,c(6,7)],
+                       data = rat_res[,-c(6,7)],
+                       proj4string = CRS("+init=epsg:31370"))
+rat_spat <- st_as_sf(rat_spat)
+rat_spat <- st_transform(rat_spat, 4326)
+rat_spat$mutatie <- factor(rat_spat$mutatie,
+                           levels = c("M1M1", "M1W", "M2M2", "M2W",
+                                      "M3M3", "M3W", "M1M2", "M1M3", "WW"))
+shared_rat <- SharedData$new(rat_spat)
+
+DSN <- "../data/Wsbekken.shp"
+Shape_bekken <- readOGR(dsn = DSN, layer = "Wsbekken", verbose = FALSE)
+Shape_bekken <- st_as_sf(Shape_bekken)
+bekken <- st_transform(Shape_bekken, 4326)
+
+DSN <- "../data/AD_2_Municipality.shp"
+gemeenten <- readOGR(dsn = DSN)
+gemeenten <- st_as_sf(gemeenten)
+gemeenten <- st_transform(gemeenten, 4326)
+```
+
+```{r}
+pal <- colorFactor(c("deeppink", "red", "grey", "khaki1", "orange",
+                     "turquoise1", "blue", "yellow", "purple"),
+                   levels = c("M1W", "M1M1", "WW", "M3W", "M1M3",
+                     "M2W", "M2M2", "M3M3", "M1M2"))
+
+bscols(widths = c(3,NA),
+       list(filter_checkbox("mutatie", "Mutatie", shared_rat, ~mutatie, 
+                            inline = TRUE, columns = 5),
+            filter_slider("jaar", "Jaar", shared_rat, ~jaar, width = "100%", sep = "")),
+       leaflet(bekken, options = leafletOptions(minZoom = 7), width = 748) %>% 
+         addProviderTiles(providers$CartoDB.Positron) %>% 
+         addPolygons(fillColor = "white", 
+                     color = "steelblue", 
+                     weight = 2, 
+                     fillOpacity = 0.5) %>% 
+         addCircleMarkers(data = shared_rat,
+                          fillColor = ~pal(rat_spat$mutatie),
+                          fillOpacity = 1,
+                          radius = ~ifelse(rat_spat$mutatie == "WW", 3, 5),
+                          stroke = FALSE) %>% 
+         addLegend("bottomleft",
+                   pal = pal,
+                   values = ~rat_spat$mutatie,
+                   title = "Mutatie") %>% 
+         setView(4.2813167, 50.76, zoom = 8)
+)  
+```
+
+```{r}
+rat_spat <- rat_spat %>% 
+  filter(mutatie != "WW")
+
+
+overlap <- st_join(gemeenten, rat_spat)
+
+overlap <- overlap %>% 
+  select(NameDut, mutatie, geometry) %>% 
+  filter(!is.na(NameDut)) %>% 
+  filter(!NameDut %in% c("Anderlecht", "Elsene", "Etterbeek", "Evere",
+                         "Ganshoren", "Jette", "Koekelberg", "Oudergem",
+                         "Schaarbeek", "Sint-Agatha-Berchem", "Sint-Gillis",
+                         "Sint-Jans-Molenbeek", "Sint-Joost-ten-Node",
+                         "Sint-Lambrechts-Woluwe", "Sint-Pieters-Woluwe",
+                         "Brussel","Ukkel","Vorst","Watermaal-Bosvoorde")) %>% 
+  distinct()
+
+overlap <- overlap %>% 
+  mutate(popup = ifelse(mutatie %in% c("M1M1", "M1W", "M3M3", "M3W", "M1M3", "M1M2"),
+                        "Aangeraden bestrijdingsmiddel: <br> difenacoum",
+                        "Aangeraden bestrijdingsmiddel: <br> difenacoum of bromadiolone")) %>% 
+  mutate(popup = ifelse(mutatie %in% c("M2M2", "M2W"),
+                        "Aangeraden bestrijdingsmiddel: <br> bromadiolone",
+                        popup))
+
+overlap <- overlap %>% 
+  select(NameDut, popup, geometry) %>% 
+  distinct()
+
+subgem <- overlap %>% 
+  group_by(NameDut) %>% 
+  filter(n()>1) %>% 
+  select(NameDut) %>% 
+  distinct() %>% 
+  pull(NameDut)
+
+overlap <- overlap %>% 
+  mutate(popup = ifelse(NameDut %in% subgem,
+                        "Aangeraden bestrijdingsmiddel: <br> difenacoum",
+                        popup)) %>% 
+  distinct()
+```
+
+```{r}
+pal <- colorFactor(palette = c("yellow", "blue", "green"),
+                   levels = c("Aangeraden bestrijdingsmiddel: <br> difenacoum",
+                              "Aangeraden bestrijdingsmiddel: <br> bromadiolone",
+                              "Aangeraden bestrijdingsmiddel: <br> difenacoum of bromadiolone"))
+
+leaflet(overlap) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+         addPolygons(fillColor = ~pal(overlap$popup), 
+                     color = "white", 
+                     weight = 2, 
+                     fillOpacity = 0.5,
+                     popup = sprintf("<strong>%s</strong><br>%s",
+                            overlap$NameDut, overlap$popup))
+```
+
+
+
