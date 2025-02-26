@@ -1,9 +1,9 @@
 ---
 title:  |
   | Resistentie tegen rattenvergif  
-  | (2013 – 2019)
-author: "Kristof Baert, Emma Cartuyvels"
-date: "17-11-2020"
+  | (2013 – 2024)
+author: "Kristof Baert, Emma Cartuyvels, Michiel Lathouwers"
+date: "26-02-2025"
 output: html_document
 ---
 ```{r include = FALSE}
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning = FALSE)
 ```
 
 ```{r logo}
-htmltools::img(src = knitr::image_uri("../INSTvoorNatuur.jpg"), 
+htmltools::img(src = knitr::image_uri("./INSTvoorNatuur.jpg"), 
                alt = 'logo', 
                style = 'position:absolute; top:0; right:0; 
                padding:10px; width:30vw')
@@ -28,7 +28,7 @@ library(plotly)
 library(tidyverse)
 ```
 
-Sinds het begin van ons onderzoek in 2003 zien we dat het aantal resistente ratten in Vlaanderen verdubbelde. Met gemiddeld meer dan 40% resistente ratten is het mogelijk dat de bestrijding met vergif niet langer het gewenste resultaat oplevert. We zien nog wel geografische verschillen maar ook daar waar we lang geen of weinig resistentie zagen, duikt het nu meer en meer op.
+Sinds het begin van ons onderzoek in 2003 zien we dat het aantal resistente ratten in Vlaanderen verdubbelde. Met gemiddeld meer dan 50% resistente ratten is het mogelijk dat de bestrijding met vergif niet langer het gewenste resultaat oplevert. We zien nog wel geografische verschillen maar ook daar waar we lang geen of weinig resistentie zagen, duikt het nu meer en meer op.
 
 In Vlaanderen vinden we drie verschillende genetische vormen (mutaties) van resistentie terug. Alle mutaties veroorzaken resistentie tegen eerste generatie rodenticiden (warfarine, coumatetralyl).
 
@@ -46,8 +46,8 @@ Via deze interactieve kaart bieden we bestrijders de kans aan, om in te spelen o
 Deze resultaten kwamen tot stand in nauwe samenwerking met Afdeling Operationeel Waterbeheer van de Vlaamse Milieumaatschappij (VMM).
 
 
-```{r data}
-rat_res <- read_xlsx("../data/2013 - 2019 BMK.xlsx")
+```{r data, warning=FALSE}
+rat_res <- read_xlsx("./data/2013 - 2024 BMK.xlsx")
 rat_spat <- SpatialPointsDataFrame(coords = rat_res[,c(6,7)],
                        data = rat_res[,-c(6,7)],
                        proj4string = CRS("+init=epsg:31370"))
@@ -58,13 +58,13 @@ rat_spat$mutatie <- factor(rat_spat$mutatie,
                                       "M3M3", "M3W", "M1M2", "M1M3", "WW"))
 shared_rat <- SharedData$new(rat_spat)
 
-DSN <- "../data/Wsbekken.shp"
+DSN <- "./data/Wsbekken.shp"
 Shape_bekken <- readOGR(dsn = DSN, layer = "Wsbekken", verbose = FALSE)
 Shape_bekken <- st_as_sf(Shape_bekken)
 bekken <- st_transform(Shape_bekken, 4326)
 
-DSN <- "../data/AD_2_Municipality.shp"
-gemeenten <- readOGR(dsn = DSN)
+DSN <- "./data/AD_2_Municipality.shp"
+gemeenten <- readOGR(dsn = DSN, verbose=FALSE)
 gemeenten <- st_as_sf(gemeenten)
 gemeenten <- st_transform(gemeenten, 4326)
 ```
@@ -142,8 +142,12 @@ overlap <- overlap %>%
   distinct()
 ```
 
+
+De interactieve kaart hieronder toont het aanbevolen bestrijdingsmiddel op basis van de vastgestelde resistentie. Klik op een gemeente om te zien welk middel wordt geadviseerd.
+
+
 ```{r}
-pal <- colorFactor(palette = c("yellow", "blue", "green"),
+pal <- colorFactor(palette = c("yellow", "blue", "darkolivegreen4"),
                    levels = c("Aangeraden bestrijdingsmiddel: <br> difenacoum",
                               "Aangeraden bestrijdingsmiddel: <br> bromadiolone",
                               "Aangeraden bestrijdingsmiddel: <br> difenacoum of bromadiolone"))
