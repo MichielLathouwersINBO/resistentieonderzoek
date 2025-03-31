@@ -3,7 +3,7 @@ title:  |
   | Resistentie tegen rattenvergif  
   | (2013 – 2024)
 author: "Kristof Baert, Emma Cartuyvels, Michiel Lathouwers"
-date: "26-02-2025"
+date: "31-03-2025"
 output: html_document
 ---
 ```{r include = FALSE}
@@ -28,22 +28,25 @@ library(plotly)
 library(tidyverse)
 ```
 
-Sinds het begin van ons onderzoek in 2003 zien we dat het aantal resistente ratten in Vlaanderen verdubbelde. Met gemiddeld meer dan 50% resistente ratten is het mogelijk dat de bestrijding met vergif niet langer het gewenste resultaat oplevert. We zien nog wel geografische verschillen maar ook daar waar we lang geen of weinig resistentie zagen, duikt het nu meer en meer op.
+Sinds het begin van ons onderzoek in 2003 zien we dat het aantal resistente ratten in Vlaanderen verdubbelde. Met gemiddeld ongeveer 50% aan resistentie is het mogelijk dat de bestrijding met vergif niet langer het gewenste resultaat oplevert. We zien nog wel geografische verschillen maar ook daar waar we lang geen of weinig resistentie zagen, duikt het nu meer en meer op.
 
-In Vlaanderen vinden we drie verschillende genetische vormen (mutaties) van resistentie terug. Alle mutaties veroorzaken resistentie tegen eerste generatie rodenticiden (warfarine, coumatetralyl).
+In Vlaanderen vinden we drie genetische vormen (mutaties) van resistentie terug. Alle mutaties veroorzaken minstens resistentie tegen eerste generatie rodenticiden (vb. coumatetralyl).
 
-- Mutatie 1 (M1) of Y139F (rood) komt het meest algemeen voor en veroorzaakt ook resistentie tegen bromadiolone en in beperkte mate tegen difenacoum.
-- Mutatie 2 (M2) of L120Q (blauw) oorspronkelijk beperkt tot het Demerbekken neemt ook toe in areaal maar komt in vergelijking met M1 nog steeds minder voor. Testen uit het verleden geven aan dat deze mutatie vooral resistentie tegen difenacoum bevordert, maar ook deels tegen bromadiolone.
-- Mutatie 3 (M3) of Y139C (geel) blijft zelden. Resistentie door M3 is vergelijkbaar met M1.
-- Wildtype of WW (grijs) dragen geen mutatie en kunnen bestreden worden met rattenvergif.
+- <span style="color:#fa0a26">Mutatie 1 (M1) of Y139F (rood)</span> komt het meest algemeen voor en veroorzaakt ook resistentie tegen bromadiolone en in beperkte mate tegen difenacoum.
+- <span style="color:#0000cc">Mutatie 2 (M2) of L120Q (blauw)</span> oorspronkelijk beperkt tot het Demerbekken neemt ook toe in areaal maar komt in vergelijking met M1 nog steeds minder voor. Eerdere testen gaven aan dat deze mutatie beperkte resistentie tegen difenacoum en bromadiolone veroorzaakt.
+- <span style="color:#f1d803">Mutatie 3 (M3) of Y139C (geel)</span> komt zelden voor. Resistentie door M3 is vergelijkbaar met M1.
+- <span style="color:#A3A3A3">Wildtype of WW (grijs)</span> dragen geen mutatie en zijn niet resistent.
+
 
 We zien ook een aantal combinaties van de verschillende mutaties, die vermoedelijk bijdragen aan resistentie tegen zowel bromadiolone als difenacoum.
 
-Een rat kan enkel of dubbel drager zijn van een mutatie (vb M1W of M1M1). Alle dragers zijn resistent. Ratten die dubbel drager zijn van een mutatie zijn moeilijker te bestrijden en hun nakomelingen zijn allemaal resistent tegen rattenvergif.
+Een rat kan enkel (vb. M1W) of dubbel (vb. M1M1) drager zijn van een mutatie. Alle dragers van een mutatie zijn resistent, maar ratten die dubbel drager zijn zijn moeilijker te bestrijden en geven resistentie door aan al hun nakomelingen.
 
-Via deze interactieve kaart bieden we bestrijders de kans aan, om in te spelen op de lokale situatie. De grenzen op kaart zijn de verschillende rivierbekkens in Vlaanderen. In 2017 en 2018 werden enkel de centrale bekkens waar minder resistentie aanwezig is getest.
+**Probeer steeds het gebruik van vergif te vermijden door het toepassen van preventieve maatregelen (voeder en schuilplaatsen beperken) en het gebruik van andere vangmiddelen (vb. klemmen).** 
 
-Deze resultaten kwamen tot stand in nauwe samenwerking met Afdeling Operationeel Waterbeheer van de Vlaamse Milieumaatschappij (VMM).
+Wil je meer informatie over resistentie tegen vergif bij ratten? Download onze INBO-rapporten: [2012](https://purews.inbo.be/ws/portalfiles/portal/701903/Baert_etal_2012_BestrijdingBruineRatVlaanderen.pdf) , [2016](https://purews.inbo.be/ws/portalfiles/portal/11949426/Baert_etal_2016_ResistentieTegenRodenticidenBijDeBruineRatRattusNorvegicus.pdf) en 2025.
+
+Via deze interactieve kaart kan de bestrijding zich richten op de lokale situatie. De grenzen op kaart zijn de verschillende rivierbekkens in Vlaanderen. In 2017 en 2018 werden enkel de centrale bekkens waar minder resistentie aanwezig is getest.
 
 
 ```{r data, warning=FALSE}
@@ -143,7 +146,7 @@ overlap <- overlap %>%
 ```
 
 
-De interactieve kaart hieronder toont het aanbevolen bestrijdingsmiddel op basis van de vastgestelde resistentie. Klik op een gemeente om te zien welk middel wordt geadviseerd.
+De kaart hieronder toont het aanbevolen bestrijdingsmiddel op basis van de vastgestelde resistentie. Klik op een gemeente om te zien welk middel wordt geadviseerd.
 
 
 ```{r}
@@ -162,5 +165,5 @@ leaflet(overlap) %>%
                             overlap$NameDut, overlap$popup))
 ```
 
-
+*Deze resultaten kwamen tot stand in nauwe samenwerking met Afdeling Operationeel Waterbeheer van de Vlaamse Milieumaatschappij (VMM), RATO vzw, de Vlaamse provincies en het Brussels Hoofdstedelijk Gewest.*
 
