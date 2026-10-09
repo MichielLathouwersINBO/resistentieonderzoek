@@ -83,7 +83,7 @@ bscols(widths = c(3,NA),
                             inline = TRUE, columns = 5),
             filter_slider("jaar", "Jaar", shared_rat, ~jaar, width = "100%", sep = "")),
        leaflet(bekken, options = leafletOptions(minZoom = 7), width = 748) %>% 
-         addProviderTiles(providers$CartoDB.Positron) %>% 
+         addProviderTiles(providers$OpenStreetMap.DE) %>%
          addPolygons(fillColor = "white", 
                      color = "steelblue", 
                      weight = 2, 
@@ -156,7 +156,7 @@ pal <- colorFactor(palette = c("yellow", "blue", "darkolivegreen4"),
                               "Aangeraden bestrijdingsmiddel: <br> difenacoum of bromadiolone"))
 
 leaflet(overlap) %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addProviderTiles(providers$OpenStreetMap.DE) %>% 
          addPolygons(fillColor = ~pal(overlap$popup), 
                      color = "white", 
                      weight = 2, 
